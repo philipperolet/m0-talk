@@ -11,6 +11,7 @@
                  [cljsjs/react "17.0.2-0"]
                  [cljsjs/react-dom "17.0.2-0"]
                  [reagent "1.1.1"]
+                 [cljs-http "0.1.46"]
                  [org.clojars.philipperolet/cljs-chat "0.3"]]
   :source-paths ["src"]
 
