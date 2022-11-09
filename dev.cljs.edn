@@ -1,0 +1,5 @@
+^{:watch-dirs ["src"]
+  :open-url "http://localhost:9500/index-dev.html"
+  :css-dirs ["resources/public/css"]
+  :auto-testing {:namespaces []}}
+{:main mzero.web.run}

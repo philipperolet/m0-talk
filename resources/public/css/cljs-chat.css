@@ -1,0 +1,83 @@
+.mzero-chat {
+    margin: 0.5em;
+    width: 30em;
+    height: 23em;
+    padding: 0 0.5em 0.5em;
+    border: thin black solid;
+    border-radius: 8px;
+    position: relative;
+}
+
+.mzero-chat .messages {
+    overflow: auto;
+    height: 20em;
+    padding-top: 0.2em;
+    border-bottom: thin black solid;
+    padding-right: 0.5em;
+}
+
+.mzero-chat div.me,
+.mzero-chat div.you {
+    margin-bottom: 0.35em;
+}
+
+.mzero-chat div.me {
+    text-align: right;
+}
+
+.mzero-chat .messages div.you > div,
+.mzero-chat .messages div.me > div {
+    border-radius: 10px;
+    display:inline-block;
+    max-width: 70%;
+    padding: 0.2em 0.5em 0.2em;
+}
+
+.mzero-chat div.you > div {
+    background-color: #fcc;
+}
+.mzero-chat div.me > div {
+    background-color: #ccf;
+}
+
+.new-message {
+    position: absolute;
+    bottom: 0%;
+    padding-bottom: 0.5em;
+    width: 100%;
+}
+
+.new-message input {
+    width: 75%;
+    margin-right: 1em;
+    padding-left: 0.5em;
+    border-radius: 8px;
+}
+
+.new-message button.btn {
+    position: absolute;
+    right: 1em;
+    border-radius: 8px;
+    padding: 0.15rem 0.75rem;
+}
+
+/* Works on Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: black grey;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 3px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #0000;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: black;
+  border-radius: 10px;
+  border: 1px solid grey;
+}

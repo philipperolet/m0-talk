@@ -1,0 +1,6 @@
+*~
+.nrepl-port
+.projectile
+target/
+/pom.xml
+/pom.xml.asc
