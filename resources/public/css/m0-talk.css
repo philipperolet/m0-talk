@@ -1,0 +1,11 @@
+@import 'cljs-chat.css';
+
+.mzero-chat {
+    background-color: #0000;
+}
+.mzero-chat.loading {
+    background-color: #eee;
+    background-image: url(../loading-gif.gif);
+    background-position: center;
+    background-repeat: no-repeat;
+}

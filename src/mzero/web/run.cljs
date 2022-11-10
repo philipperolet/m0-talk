@@ -58,8 +58,31 @@
       :choices first :text
       ;; remove the 'AI:' part from the text
       (str/split "AI:") second))
+
+(defn- show-loading! []
+  ;; disable user message sending
+  (doall
+   (map #(set! (.-disabled %) true)
+        (.querySelectorAll js/document ".mzero-chat .new-message *")))
+  ;; show loading
+  (-> (.querySelector js/document ".mzero-chat")
+      .-classList
+      (.add "loading")))
+
+(defn- hide-loading! []
+  ;; hide loading
+  (-> (.querySelector js/document ".mzero-chat")
+      .-classList
+      (.remove "loading"))
+  ;; enable user message sending
+  (doall
+   (map #(set! (.-disabled %) false)
+        (.querySelectorAll js/document ".mzero-chat .new-message *"))))
+
 (defn- talk-back! [message]
+  (show-loading!)
   (go (let [response (<! (llm-http-request! (:messages @c/chat-data)))]
+        (hide-loading!)
         (c/send-message "you" (parse-llm-response response)))))
 
 (defn- start-ai-conversation []
