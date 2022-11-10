@@ -1,7 +1,9 @@
 .mzero-chat {
+    --mzc-height: 33em;
+    --mzc-width: 27em;
     margin: 0.5em;
-    width: 30em;
-    height: 23em;
+    width: var(--mzc-width);
+    height: var(--mzc-height);
     padding: 0 0.5em 0.5em;
     border: thin black solid;
     border-radius: 8px;
@@ -10,7 +12,7 @@
 
 .mzero-chat .messages {
     overflow: auto;
-    height: 20em;
+    height: calc(var(--mzc-height) - 3em);
     padding-top: 0.2em;
     border-bottom: thin black solid;
     padding-right: 0.5em;
