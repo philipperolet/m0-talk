@@ -31,14 +31,14 @@
 
 (def prompt-init
   (str "The following is a conversation between a human and an AI."
-       "The machine is nice, intelligent and well spoken.\n"))
+       "The AI is nice, intelligent and well spoken.\n"))
 
 (defn- create-prompt [messages]
   (let [user-name #(if (= % "me") "Human:" "AI:")        
         add-message-to-conversation
         (fn [message]
           (str (user-name (:user message)) " " (:text message) "\n"))]
-    (apply str prompt-init (mapcat add-message-to-conversation messages))))
+    (apply str prompt-init (conj (mapv add-message-to-conversation messages) "AI:"))))
 
 (defn- llm-http-request! [messages]
   (let [prompt (create-prompt messages)
@@ -55,9 +55,7 @@
 
 (defn- parse-llm-response [response]
   (-> response :body from-json-str
-      :choices first :text
-      ;; remove the 'AI:' part from the text
-      (str/split "AI:") second))
+      :choices first :text))
 
 (defn- show-loading! []
   ;; disable user message sending
