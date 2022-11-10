@@ -6,26 +6,32 @@
              [goog.dom :as gdom]
              [clojure.string :as str]))
 
-(def openai-completions-api-url "https://api.openai.com/v1/completions")
-
-(def gpt3-params-template
-  {"model" "text-davinci-002"
-   "prompt" nil
-   "temperature" 0.5
-   "max_tokens" 300
-   "top_p" 1
-   "frequency_penalty" 0.0
-   "presence_penalty" 0.6
-   "stop" [" Human:" " AI:"]})
-
-(def prompt-init
-  (str "The following is a conversation between a human and an AI."
-       "The machine is nice, intelligent and well spoken.\n"))
-
 (defn to-json-str
   "Convert to JSON string with namespaced keywords"
   [data]
   (.stringify js/JSON (clj->js data :keyword-fn #(subs (str %) 1))))
+
+(defn from-json-str
+  "Opposite of to-json-str"
+  [json-str]
+  (js->clj (.parse js/JSON json-str) :keywordize-keys true))
+
+(def m0-talk-handler-url "https://guyltmkjuacodlhyyoim5vprli0uxien.lambda-url.eu-west-3.on.aws/")
+
+(def gpt3-params-template
+  ;; encode for security
+  (js/btoa
+   {"model" "text-davinci-002"
+    "temperature" 0.5
+    "max_tokens" 300
+    "top_p" 1
+    "frequency_penalty" 0.0
+    "presence_penalty" 0.6
+    "stop" [" Human:" " AI:"]}))
+
+(def prompt-init
+  (str "The following is a conversation between a human and an AI."
+       "The machine is nice, intelligent and well spoken.\n"))
 
 (defn- create-prompt [messages]
   (let [user-name #(if (= % "me") "Human:" "AI:")        
@@ -36,18 +42,19 @@
 
 (defn- llm-http-request! [messages]
   (let [prompt (create-prompt messages)
-        gpt3-params (assoc gpt3-params-template "prompt" prompt)
-        headers
-        {"Authorization"
-         "Bearer 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"
-         "content-type" "application/json"}]
-    (http/post openai-completions-api-url
+        headers {"content-type" "text/plain"}
+        body
+        (-> gpt3-params-template
+            ;; decode param template
+            js/atob cljs.reader/read-string
+            (assoc "prompt" prompt))]
+    (http/post m0-talk-handler-url
                {:with-credentials? false
-                :body (to-json-str gpt3-params)
+                :body (js/btoa (to-json-str body))
                 :headers headers})))
 
 (defn- parse-llm-response [response]
-  (-> response :body
+  (-> response :body from-json-str
       :choices first :text
       ;; remove the 'AI:' part from the text
       (str/split "AI:") second))
