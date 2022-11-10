@@ -75,7 +75,9 @@
   ;; enable user message sending
   (doall
    (map #(set! (.-disabled %) false)
-        (.querySelectorAll js/document ".mzero-chat .new-message *"))))
+        (.querySelectorAll js/document ".mzero-chat .new-message *")))
+  ;; focus on input text
+  (.focus (.querySelector js/document ".mzero-chat .new-message input"))) 
 
 (defn- talk-back! [message]
   (show-loading!)
