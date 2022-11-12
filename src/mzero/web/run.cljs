@@ -96,7 +96,7 @@ The third conversation is longer. It goes like this:
    (map #(set! (.-disabled %) false)
         (.querySelectorAll js/document ".mzero-chat .new-message *")))
   ;; focus on input text
-  (.focus (.querySelector js/document ".mzero-chat .new-message input"))) 
+  #_(.focus (.querySelector js/document ".mzero-chat .new-message input"))) 
 
 (defn- talk-back! [_]
   (show-loading!)
