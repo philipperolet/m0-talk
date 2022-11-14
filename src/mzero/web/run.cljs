@@ -5,6 +5,7 @@
              [clojure.core.async :refer [<!] :refer-macros [go]]
              [goog.dom :as gdom]
              [clojure.string :as str]))
+(def error-message "Sorry, my brain crashed trying to understand what you said. Please restart the conversation by reloading this page.")
 
 (def prompt-init
   "Jean-Noel Barrot is Secretary of Technology under French President Emmanuel Macron's administration. He is working with the Secretary of Economy Bruno Le Maire in order to ensure that France develops the best policies regarding digital and technological innovation. 
@@ -76,7 +77,9 @@ The third conversation is longer. It goes like this:
                 :body (js/btoa (to-json-str body))
                 :headers headers})))
 
-(defn- parse-llm-response [response]
+(defn- parse-llm-response
+  "Return AI's message, or nil if AI failed to respond"
+  [response]
   (-> response :body from-json-str
       :choices first :text))
 
@@ -91,23 +94,35 @@ The third conversation is longer. It goes like this:
       (.add "loading")))
 
 (defn- hide-loading! []
-  ;; hide loading
   (-> (.querySelector js/document ".mzero-chat")
       .-classList
-      (.remove "loading"))
-  ;; enable user message sending
+      (.remove "loading")))
+
+(defn- enable-input! []
   (doall
    (map #(set! (.-disabled %) false)
-        (.querySelectorAll js/document ".mzero-chat .new-message *")))
+        (.querySelectorAll js/document ".mzero-chat .new-message *"))))
+
+(defn- resume-chat! []
+  (hide-loading!)
+  (enable-input!)
   ;; focus on input text except on mobile
   (when (not (mobile-device?))
     (.focus (.querySelector js/document ".mzero-chat .new-message input")))) 
 
 (defn- talk-back! [_]
   (show-loading!)
-  (go (let [response (<! (llm-http-request! (:messages @c/chat-data)))]
-        (hide-loading!)
-        (c/send-message "you" (parse-llm-response response)))))
+  (go (try
+        (let [response (<! (llm-http-request! (:messages @c/chat-data)))
+              ai-message (parse-llm-response response)]
+          (when (<= 400 (:status response))
+            (throw (js/Error. "Request failed to lambda")))
+          (resume-chat!)
+          (c/send-message "you" ai-message))
+        (catch js/Error e
+          (hide-loading!)
+          (c/send-message "you" error-message)
+          (throw e)))))
 
 (defn- start-ai-conversation []
   (talk-back! nil)
