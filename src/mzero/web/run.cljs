@@ -29,6 +29,10 @@ AI: Of course.
 The third conversation is longer. It goes like this:
 ")
 
+(defn mobile-device? []
+  (re-find #"Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini"
+           (.-userAgent js/navigator)))
+
 (defn to-json-str
   "Convert to JSON string with namespaced keywords"
   [data]
@@ -95,8 +99,9 @@ The third conversation is longer. It goes like this:
   (doall
    (map #(set! (.-disabled %) false)
         (.querySelectorAll js/document ".mzero-chat .new-message *")))
-  ;; focus on input text
-  #_(.focus (.querySelector js/document ".mzero-chat .new-message input"))) 
+  ;; focus on input text except on mobile
+  (when (not (mobile-device?))
+    (.focus (.querySelector js/document ".mzero-chat .new-message input")))) 
 
 (defn- talk-back! [_]
   (show-loading!)
