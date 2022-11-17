@@ -1,1 +1,26 @@
-M0 Talk project
+- refactor so that cli.clj uses core.cljc methods
+  - change core so it works with cli.clj directly
+  - update-with-answer!
+	- change the ai :messages updates to use the chat api
+	-
+- refactor to have web.clj*s* use core.clj also
+	- use of cljs-http VS http-kit 
+		=> isolate in one call, externalize it?
+	- llm-http-request 
+		- openai_api_key
+			- use lambda function instead of env
+		- object to json string
+	- parse-llm-response
+		- jsons string to object
+- add logging to core.cljc  
+
+- move loading logic to cljs-chat
+- pure css/html loading
+- faire mieux sur mobile
+- better solution to load css rather than github links to your repo
+- talk about it in clojureverse
+- configure cors for domain call
+- add timestamp
+- add status
+- Remove bootstrap dependency
+- secure the calls to api 
