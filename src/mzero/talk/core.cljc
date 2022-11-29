@@ -9,7 +9,7 @@
 
 (def ai-api-url "https://api.openai.com/v1/completions")
 (def gpt3-params-template
-  {"model" "text-davinci-002"
+  {"model" "text-davinci-003"
    "temperature" 0.9
    "max_tokens" 300
    "top_p" 1
