@@ -49,9 +49,9 @@ The third conversation is longer. It goes like this:
 (def gpt3-params-template
   ;; encode for security
   (js/btoa
-   {"model" "text-davinci-002"
+   {"model" "text-davinci-003"
     "temperature" 0.9
-    "max_tokens" 300
+    "max_tokens" 1000
     "top_p" 1
     "frequency_penalty" 0.0
     "presence_penalty" 0.6
