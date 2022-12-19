@@ -1,15 +1,16 @@
 (ns mzero.talk.chat
-  (:require [mzero.talk.core :as mtc]))
+  (:require [mzero.talk.core :as mtc]
+            [clojure.tools.logging :as log]))
 
-(def error-message "Sorry, my brain crashed trying to understand what you said. Please restart the conversation by reloading this page.")
+(def error-message "ERROR. BIP. Sorry, my brain crashed while processing what you said. My memory of this conversation was reset. Contact M0 for help about this.")
 
 (def gpt3-chat-params
   {"model" "text-davinci-003"
-   "temperature" 0.7
-   "max_tokens" 2000
+   "temperature" 0.2
+   "max_tokens" 500
    "top_p" 1
-   "frequency_penalty" 0.9
-   "presence_penalty" 0.9
+   "frequency_penalty" 0.0
+   "presence_penalty" 0.0
    "stop" ["AI:"]})
 
 (defn- create-chat-prompt [{:as ai :keys [messages user-name prompt-init]}]
@@ -25,14 +26,23 @@
       (update :messages conj {:user "me" :text message})))
 
 (defn- setup-ai-for-chat [ai message]
-  (let [ai-with-message (add-message ai message)]
+  (let [ai-with-message (add-message ai message)
+        default-chat-params
+        (update gpt3-chat-params "stop" conj (str (:user-name ai) ":"))]
     (-> ai-with-message
-        (update :gpt3-params #(or % gpt3-chat-params))
-        (assoc-in [:gpt3-params "prompt"] (create-chat-prompt ai-with-message))
-        (update-in [:gpt3-params "stop"] conj (str (:user-name ai) ":")))))
+        (update :gpt3-params #(or % default-chat-params))
+        (assoc-in [:gpt3-params "prompt"] (create-chat-prompt ai-with-message)))))
 
 (defn update-with-answer! [ai message]
-  (let [chatty-ai (setup-ai-for-chat ai message)
-        response @(mtc/llm-http-request! chatty-ai)
-        ai-message (mtc/parse-llm-response! response)]    
-    (update chatty-ai :messages conj {:user "you" :text ai-message})))
+  (log/info "Sending message: " message)
+
+  (try 
+    (let [chatty-ai (setup-ai-for-chat ai message)
+          response @(mtc/llm-http-request! chatty-ai)
+          ai-message (mtc/parse-llm-response! response)]    
+      (update chatty-ai :messages conj {:user "you" :text ai-message}))
+    
+    (catch Exception e
+      (log/info e)
+      (println error-message)
+      (dissoc ai message))))
