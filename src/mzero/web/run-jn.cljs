@@ -8,7 +8,27 @@
 (def error-message "Sorry, my brain crashed trying to understand what you said. Please restart the conversation by reloading this page.")
 
 (def prompt-init
-  "The following is a conversation between a user and an AI assistant:")
+  "Jean-Noel Barrot is Secretary of Technology under French President Emmanuel Macron's administration. He is working with the Secretary of Economy Bruno Le Maire in order to ensure that France develops the best policies regarding digital and technological innovation. 
+
+The following are conversations between Jean-Noel and his personal AI assistant. The assistant can do lots of things, such as help him with technological matters, give advice about Jean-Noel's job as Secretary of Technology, answer any kind of question, or just have a casual chat. The assistant is often cynical and sarcastic, but overall very insightful and his advice is good. Sometimes, Jean-Noel says weird things but the assistant finds a witty response. The first conversation, shown below, is short:
+AI: Hello Jean-Noel.
+Jean-Noel: Can you help me with something?
+AI: Sure. As usual.
+Jean-Noel: I don't remember the name of the president's wife.
+AI: It's Brigitte. I'm unclear how you could forget that.
+Jean-Noel: ok thanks
+
+The second one is short too and focused on a specific policy:
+AI: Hello Mr. Secretary. Do you need something?
+Jean-Noel: Yes, I'm working on a new policy to improve technological skills of young children by introducing coding lessons at school. How would you name such a policy?
+AI: You could name it \"Teach the Future\" or more soberly \"Digital Literacy Act\". Although I know you're not always on the sober side.
+Jean-Noel: I like \"Teach the Future\". At what age should children learn programming in your opinion?
+AI: Probably around 8 years old. Before that, they won't be able to understand properly the abstractions you can find in programming languages.
+Jean-Noel: Right. Thanks.
+AI: Of course.
+
+The third conversation is longer. It goes like this:
+")
 
 (defn mobile-device? []
   (re-find #"Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini"
@@ -30,15 +50,15 @@
   ;; encode for security
   (js/btoa
    {"model" "text-davinci-003"
-    "temperature" 0.2
+    "temperature" 0.9
     "max_tokens" 1000
     "top_p" 1
     "frequency_penalty" 0.0
     "presence_penalty" 0.6
-    "stop" ["User:" "AI:"]}))
+    "stop" ["Jean-Noel:" "AI:"]}))
 
 (defn- create-prompt [messages]
-  (let [user-name #(if (= % "me") "User:" "AI:")        
+  (let [user-name #(if (= % "me") "Jean-Noel:" "AI:")        
         add-message-to-conversation
         (fn [message]
           (str (user-name (:user message)) " " (:text message) "\n"))]
@@ -105,6 +125,7 @@
           (throw e)))))
 
 (defn- start-ai-conversation []
+  (talk-back! nil)
   (set! c/send-button-callback talk-back!))
 
 (defn- run []
