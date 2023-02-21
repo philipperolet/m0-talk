@@ -1,31 +1,38 @@
 (ns mzero.talk.core
-  (:require  [org.httpkit.client :as http]
-             [clojure.data.json :as json]
-             [clojure.tools.logging :as log]
-             [clojure.core.async :refer [<!] :refer-macros [go]]
-             [clojure.string :as str]))
+  (:require #?(:clj [org.httpkit.client :as http]
+               :cljs [cljs-http.client :as http])
+            [mzero.talk.log :as log]
+            [mzero.talk.utils :refer [from-json-str to-json-str]]
+            [clojure.core.async :refer [<!] :refer-macros [go]]
+            [clojure.string :as str]))
 
 (def ai-api-url "https://api.openai.com/v1/completions")
 
+(def openai-api-key 
+  #?(:clj (System/getenv "OPENAI_API_KEY")
+     :cljs (js/m0talkOpenaiKey)))
+
+(def log #?(:clj log/info :cljs (fn [& msgs] )))
+
 (defn llm-http-request! [{:as ai :keys [gpt3-params]}]
-  (log/info "Sending request with params:\n" (dissoc gpt3-params "prompt"))
+  (log "Sending request with params:\n" (dissoc gpt3-params "prompt"))
   (let [headers {"content-type" "application/json"
-                 "Authorization" (str "Bearer " (System/getenv "OPENAI_API_KEY"))}]
+                 "Authorization" (str "Bearer " openai-api-key)}]
     (http/post ai-api-url
-               {:body (json/write-str gpt3-params)
+               {:body (to-json-str gpt3-params)
                 :headers headers})))
 
 (defn parse-llm-response
   "Return AI's message, or nil if AI failed to respond"
   [response]
-  (-> response :body (#(json/read-str % :key-fn keyword))
+  (-> response :body from-json-str
       :choices first :text))
 
 (defn parse-llm-response! [response]
   (log/info response)
   (when (>= (:status response) 400)
     (throw (ex-info "Request failed." response)))
-  (let [response (update response :body #(json/read-str % :key-fn keyword))]
+  (let [response (update response :body from-json-str)]
     (log/info "Response: "
               (-> (update response :body dissoc :choices)
                   (update :opts dissoc :body)))
@@ -33,10 +40,11 @@
               (-> response :headers :openai-processing-ms) "ms"))
   (parse-llm-response response))
 
-(defn wait-for-response! [llm-promise]
-  (log/info "Waiting for server response")
-  (while (not (realized? llm-promise))
-    (Thread/sleep 500)
-    (print ".")
-    (flush))
-  @llm-promise)
+#?(:clj
+   (defn wait-for-response! [llm-promise]
+     (log/info "Waiting for server response")
+     (while (not (realized? llm-promise))
+       (Thread/sleep 500)
+       (print ".")
+       (flush))
+     @llm-promise))

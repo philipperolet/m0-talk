@@ -1,6 +1,6 @@
 (ns mzero.talk.chat
   (:require [mzero.talk.core :as mtc]
-            [clojure.tools.logging :as log]))
+            [mzero.talk.log :as log]))
 
 (def error-message "ERROR. BIP. Sorry, my brain crashed while processing what you said. My memory of this conversation was reset. Contact M0 for help about this.")
 

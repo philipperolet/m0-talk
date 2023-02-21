@@ -5,3 +5,6 @@ target/
 /pom.xml
 /pom.xml.asc
 /.lein-repl-history
+/.idea/
+/m0-talk.iml
+/.rebel_readline_history
