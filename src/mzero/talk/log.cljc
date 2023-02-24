@@ -2,10 +2,10 @@
   (:require #?(:clj [clojure.tools.logging :as log])))
 
 
-(def info
-  #?(:clj log/info
-     :cljs
-     (fn [& info-args]
-       (.log (js/console) "INFO: " msgs))))
+#?(:clj
+   (defmacro info [message & info-args] `(log/info ~message ~@info-args))
+   :cljs
+   (def info (fn [& info-args]
+               (.log (js/console) "INFO: " msgs))))
 
 

@@ -12,10 +12,8 @@
   #?(:clj (System/getenv "OPENAI_API_KEY")
      :cljs (js/m0talkOpenaiKey)))
 
-(def log #?(:clj log/info :cljs (fn [& msgs] )))
-
 (defn llm-http-request! [{:as ai :keys [gpt3-params]}]
-  (log "Sending request with params:\n" (dissoc gpt3-params "prompt"))
+  (log/info "Sending request with params:\n" (dissoc gpt3-params "prompt"))
   (let [headers {"content-type" "application/json"
                  "Authorization" (str "Bearer " openai-api-key)}]
     (http/post ai-api-url

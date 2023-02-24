@@ -15,8 +15,6 @@
       (println ai-answer)
       (recur updated-ai))))
 
-(def former-prompt-addon "The assistant is very helpful, clever and insightful. It is also very honest and earnest. When it doesn't know the answer to a question, or what to do about Philippe requests, it says so to Philippe.\n")
-
 (def ai
   {:prompt-init "The following is a conversation between a human named Philippe and his AI assistant.\n"
    :user-name "Philippe"})
