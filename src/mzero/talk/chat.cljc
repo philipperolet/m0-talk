@@ -13,12 +13,12 @@
    "presence_penalty" 0.0
    "stop" ["AI:"]})
 
-(defn- create-chat-prompt [{:as ai :keys [messages user-name prompt-init]}]
+(defn- create-chat-prompt [{:as ai :keys [messages user-name prompt-template]}]
   (let [user-string #(if (= % "me") (str user-name ":") "AI:")        
         add-message-to-conversation
         (fn [message]
           (str (user-string (:user message)) " " (:text message) "\n"))]
-    (apply str prompt-init "\n" (conj (mapv add-message-to-conversation messages) "AI:"))))
+    (apply str prompt-template "\n" (conj (mapv add-message-to-conversation messages) "AI:"))))
 
 (defn- add-message [ai message]
   (-> ai

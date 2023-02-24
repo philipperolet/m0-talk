@@ -16,7 +16,7 @@
       (recur updated-ai))))
 
 (def ai
-  {:prompt-init "The following is a conversation between a human named Philippe and his AI assistant.\n"
+  {:prompt-template "The following is a conversation between a human named Philippe and his AI assistant.\n"
    :user-name "Philippe"})
 
 (defn- ai-repl-eval
