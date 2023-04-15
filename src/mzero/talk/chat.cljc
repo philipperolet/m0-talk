@@ -1,6 +1,7 @@
 (ns mzero.talk.chat
   (:require [mzero.talk.core :as mtc]
-            [mzero.talk.log :as log]))
+            [mzero.talk.log :as log]
+            [clojure.string :as str]))
 
 (def error-message "ERROR. BIP. Sorry, my brain crashed while processing what you said. My memory of this conversation was reset. Contact M0 for help about this.")
 
@@ -14,11 +15,16 @@
    "stop" ["AI:"]})
 
 (defn- create-chat-prompt [{:as ai :keys [messages user-name prompt-template]}]
-  (let [user-string #(if (= % "me") (str user-name ":") "AI:")        
+  (let [user-string #(if (= % "me") (str user-name ":") "AI:")
+        templated-string #"\{messages\}"
         add-message-to-conversation
         (fn [message]
-          (str (user-string (:user message)) " " (:text message) "\n"))]
-    (apply str prompt-template "\n" (conj (mapv add-message-to-conversation messages) "AI:"))))
+          (str (user-string (:user message)) " " (:text message) "\n"))
+        full-conversation
+        (apply str (conj (mapv add-message-to-conversation messages) "AI:"))]
+    (if (re-find templated-string prompt-template)
+      (str/replace-first prompt-template templated-string full-conversation)
+      (str prompt-template "\n" full-conversation))))
 
 (defn- add-message [ai message]
   (-> ai

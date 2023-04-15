@@ -1,13 +1,15 @@
 (ns mzero.talk.core
   (:require #?(:clj [org.httpkit.client :as http]
                :cljs [cljs-http.client :as http])
+            #?(:clj [org.httpkit.sni-client :as sni-client])
             [mzero.talk.log :as log]
             [mzero.talk.utils :refer [from-json-str to-json-str]]
             [clojure.core.async :refer [<!] :refer-macros [go]]
             [clojure.string :as str]))
 
-(def ai-api-url "https://api.openai.com/v1/completions")
 
+(def ai-api-url "https://api.openai.com/v1/completions")
+(alter-var-root #'org.httpkit.client/*default-client* (fn [_] sni-client/default-client))
 (def openai-api-key 
   #?(:clj (System/getenv "OPENAI_API_KEY")
      :cljs (js/m0talkOpenaiKey)))

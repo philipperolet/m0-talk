@@ -19,7 +19,7 @@
   {:prompt-template "The following is a conversation between a human named Philippe and his AI assistant.\n"
    :user-name "Philippe"})
 
-(defn- ai-repl-eval
+(defn ai-repl-eval
   "Either run a special command, specified by an initial `!!`, or query
   the chat agent and display its answer"
   [ai-atom input]
@@ -39,6 +39,7 @@
     (->> (mtct/update-with-answer! @ai-atom input)
          (reset! ai-atom)
          :messages last :text)))
+
 (def repl-options
   (let [ai-atom (atom ai)]
     {:prompt #(printf ":> ")
