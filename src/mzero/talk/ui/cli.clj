@@ -23,22 +23,26 @@
   "Either run a special command, specified by an initial `!!`, or query
   the chat agent and display its answer"
   [ai-atom input]
-  (if (re-matches #"^!!.*" input)
-    ;; special command
-    (case (second (re-find #"!!(reset|no-op)\w*" input))
-      "reset"
-      (do (swap! ai-atom dissoc :messages) "COMMAND: reset. Chat history reset.")
+  (let [mode #(second (re-find #"!!mode ([-\w]*)[^-\w]" %))]
+    (if (re-matches #"^!!.*" input)
+      ;; special command
+      (case (second (re-find #"!!(reset|no-op|mode)[^\w]" input))
+        "reset"
+        (do (swap! ai-atom dissoc :messages) "COMMAND: reset. Chat history reset.")
+        
+        "no-op"
+        "COMMAND: no-op. Doing nothing."
+
+        "mode"
+        (str "COMMAND: mode. TODO Switching to " (mode input) " mode")
+        
+        nil
+        "ERROR: unknown command.")
       
-      "no-op"
-      "COMMAND: no-op. Doing nothing."
-      
-      nil
-      "ERROR: unknown command.")
-    
-    ;; query ai chat agent
-    (->> (mtct/update-with-answer! @ai-atom input)
-         (reset! ai-atom)
-         :messages last :text)))
+      ;; query ai chat agent
+      (->> (mtct/update-with-answer! @ai-atom input)
+           (reset! ai-atom)
+           :messages last :text))))
 
 (def repl-options
   (let [ai-atom (atom ai)]
