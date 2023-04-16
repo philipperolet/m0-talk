@@ -17,9 +17,9 @@
 
 (def gpt3-chat-params
   {"api-url" "https://api.openai.com/v1/chat/completions"
-   "model" "gpt-4"
+   "model" "gpt-3.5-turbo"
    "temperature" 0.2
-   "max_tokens" 128
+   "max_tokens" 256
    "top_p" 1
    "frequency_penalty" 0.0
    "presence_penalty" 0.0})
@@ -42,6 +42,7 @@
       (update :messages conj {:user "me" :text message})))
 
 (defn ai-mode [ai]
+
   (if (re-find #"chat" (-> ai :gpt3-params (get "api-url")))
     :chat
     :completion))
@@ -64,14 +65,20 @@
         (reduce convert-and-add [system-message] (ai :messages))]
     (assoc-in ai [:gpt3-params "messages"] messages)))
 
+(defmulti add-username-stop-token ai-mode)
+
+(defmethod add-username-stop-token :chat [ai]
+  ;; Nothing to do because stop token not needed in chat mode
+  ai)
+
+(defmethod add-username-stop-token :completion [ai]
+  (update-in ai [:gpt3-params "stop"] conj (str (:user-name ai) ":")))
+
 (defn- setup-ai-for-chat [ai message]
-  (let [ai-with-message (add-message ai message)
-        default-chat-params ;; gpt3-chat-params
-        (update gpt3-completions-params "stop" conj (str (:user-name ai) ":"))
-        ]
-    (-> ai-with-message
-        (update :gpt3-params #(or % default-chat-params))
-        add-prompt)))
+ (->  ai
+      (add-message message)
+      add-username-stop-token
+      add-prompt))
 
 (defn update-with-answer! [ai message]
   (log/info "Sending message: " message)
